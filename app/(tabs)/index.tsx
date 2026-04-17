@@ -20,6 +20,8 @@ function BreedList() {
 	const breeds = use(breedsPromise);
 	const router = useRouter();
 
+	console.log('---breeds', breeds);
+
 	return (
 		<FlatList
 			data={breeds}
@@ -43,8 +45,11 @@ function BreedList() {
 							params: {
 								id: item.id,
 								name: item.name,
+								affection_level: item.affection_level,
 								description: item.description,
 								image_url: item.image?.url,
+								origin: item.origin,
+								temperament: item.temperament,
 							},
 						})
 					}
@@ -56,7 +61,9 @@ function BreedList() {
 						transition={500}
 					/>
 					<View style={styles.cardInfo}>
-						<Text style={styles.cardName}>{item.name.toUpperCase()}</Text>
+						<Text style={styles.cardName}>
+							{item.name.toUpperCase()}
+						</Text>
 						<Text style={styles.cardOrigin}>{item.origin}</Text>
 					</View>
 				</Pressable>

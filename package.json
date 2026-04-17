@@ -14,7 +14,9 @@
 		"format": "biome format --write ."
 	},
 	"dependencies": {
+		"@expo-google-fonts/lexend-giga": "^0.4.1",
 		"@expo/vector-icons": "^15.0.3",
+		"@react-native-vector-icons/material-design-icons": "^13.1.0",
 		"@react-navigation/native": "^7.1.8",
 		"expo": "~54.0.33",
 		"expo-constants": "~18.0.13",

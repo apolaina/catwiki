@@ -1,6 +1,7 @@
 export interface Breed {
 	id: string;
 	name: string;
+	affection_level: number;
 	description: string;
 	temperament: string;
 	origin: string;

@@ -8,7 +8,7 @@ export const Theme = {
 		surface: '#FFFDF8',
 		border: '#18124D',
 		accent: '#FFE88A',
-		hotPink: '#FF9FB8',
+		accentAlt: '#ff9fe5',
 	},
 	neobrutalism: {
 		borderWidth: 2,
@@ -23,6 +23,7 @@ export const Theme = {
 		thinBorder: 1,
 	},
 	typography: {
+		// fontFamily: 'Inter', WIP
 		fontWeightLight: '300' as const,
 		fontWeightRegular: '400' as const,
 		fontWeightBold: '700' as const,

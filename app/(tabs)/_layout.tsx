@@ -35,7 +35,7 @@ export default function TabLayout() {
 					borderRightWidth: Theme.neobrutalism.cardBorder,
 					borderLeftColor: Theme.colors.border,
 					borderRightColor: Theme.colors.border,
-					// We add the bottom inset to push the tabs up on your S25
+					// We add the bottom inset to push the tabs up
 					height: 60 + insets.bottom,
 					paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
 					paddingTop: 10,
@@ -68,7 +68,9 @@ export default function TabLayout() {
 				name="index"
 				options={{
 					title: 'RACES / LIBRARY',
-					tabBarIcon: ({ color }) => <TabBarIcon name="paw" color={color} />,
+					tabBarIcon: ({ color }) => (
+						<TabBarIcon name="paw" color={color} />
+					),
 					headerRight: () => (
 						<Link href="/modal" asChild>
 							<Pressable>
@@ -77,7 +79,10 @@ export default function TabLayout() {
 										name="info-circle"
 										size={25}
 										color={Theme.colors.text}
-										style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+										style={{
+											marginRight: 15,
+											opacity: pressed ? 0.5 : 1,
+										}}
 									/>
 								)}
 							</Pressable>
@@ -89,7 +94,9 @@ export default function TabLayout() {
 				name="journal"
 				options={{
 					title: 'ENCOUNTERS / JOURNAL',
-					tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
+					tabBarIcon: ({ color }) => (
+						<TabBarIcon name="book" color={color} />
+					),
 				}}
 			/>
 		</Tabs>

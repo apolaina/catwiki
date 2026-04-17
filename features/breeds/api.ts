@@ -5,7 +5,7 @@ const BASE_URL = 'https://api.thecatapi.com/v1';
 
 export async function fetchBreeds(): Promise<Breed[]> {
 	// Adding a small delay to test your Suspense skeletons if needed
-	const response = await fetch(`${BASE_URL}/breeds`, {
+	const response = await fetch(`${BASE_URL}/breeds/`, {
 		headers: {
 			'x-api-key': API_KEY || '',
 		},
