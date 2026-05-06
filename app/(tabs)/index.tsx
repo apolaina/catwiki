@@ -20,8 +20,6 @@ function BreedList() {
 	const breeds = use(breedsPromise);
 	const router = useRouter();
 
-	console.log('---breeds', breeds);
-
 	return (
 		<FlatList
 			data={breeds}

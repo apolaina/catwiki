@@ -24,5 +24,16 @@ export function useEncounters() {
 		});
 	};
 
-	return { encounters, addEncounterAction, isPending };
+	const deleteEncounterAction = (id: number) => {
+		return new Promise<void>((resolve) => {
+			startTransition(() => {
+				dbOperations.delete(id);
+				const updated = dbOperations.getAll();
+				setEncounters(updated);
+				resolve();
+			});
+		});
+	};
+
+	return { encounters, addEncounterAction, deleteEncounterAction, isPending };
 }

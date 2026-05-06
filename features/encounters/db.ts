@@ -34,4 +34,12 @@ export const dbOperations = {
 			[item.date, item.location, item.breed_id, item.notes, item.photo_uri],
 		);
 	},
+
+	delete: (id: number) => {
+		try {
+			return db.runSync('DELETE FROM encounters WHERE id = ?', [id]);
+		} catch (e) {
+			console.error('Failed to delete encounter', e);
+		}
+	},
 };

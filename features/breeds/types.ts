@@ -8,6 +8,7 @@ export interface Breed {
 	life_span: string;
 	adaptability: number;
 	energy_level: number;
+	reference_image_id: string;
 	image?: {
 		url: string;
 	};

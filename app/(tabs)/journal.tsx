@@ -1,26 +1,43 @@
-import { Plus } from 'lucide-react-native';
-import { useOptimistic, useTransition } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Plus, Trash2 } from 'lucide-react-native';
+import { useOptimistic, useState, useTransition } from 'react';
+import {
+	Pressable,
+	ScrollView,
+	StyleSheet,
+	Text,
+	TextInput,
+	View,
+} from 'react-native';
 import { Theme } from '@/constants/Theme';
 import { useEncounters } from '@/features/encounters/hooks';
+import type { Encounter, NewEncounter } from '@/features/encounters/types';
+
+const MAX_NOTES_LENGTH = 180;
 
 export default function JournalScreen() {
-	const { encounters, addEncounterAction } = useEncounters();
+	const { encounters, addEncounterAction, deleteEncounterAction } =
+		useEncounters();
 	const [isPending, startTransition] = useTransition();
+	const [noteDraft, setNoteDraft] = useState('');
 
-	const [optimisticEncounters, addOptimistic] = useOptimistic(
-		encounters,
-		(state, newEnc: any) => [
-			{ ...newEnc, id: Math.random(), isOptimistic: true },
-			...state,
-		],
-	);
+	const [optimisticEncounters, addOptimistic] = useOptimistic<
+		(Encounter & { isOptimistic?: boolean })[],
+		NewEncounter
+	>(encounters, (state, newEnc) => [
+		{ ...newEnc, id: Math.random(), isOptimistic: true },
+		...state,
+	]);
+
+	const canSubmit = noteDraft.trim().length > 0 && !isPending;
 
 	const handleQuickAdd = () => {
-		const entry = {
+		const cleanedNotes = noteDraft.trim();
+		if (!cleanedNotes) return;
+
+		const entry: NewEncounter = {
 			date: new Date().toLocaleDateString(),
 			location: 'STREET_FIND',
-			notes: 'Black cat, very mysterious.',
+			notes: cleanedNotes,
 			breed_id: null,
 			photo_uri: null,
 		};
@@ -28,6 +45,13 @@ export default function JournalScreen() {
 		startTransition(async () => {
 			addOptimistic(entry);
 			await addEncounterAction(entry);
+			setNoteDraft('');
+		});
+	};
+
+	const handleDelete = (id: number) => {
+		startTransition(async () => {
+			await deleteEncounterAction(id);
 		});
 	};
 
@@ -39,25 +63,60 @@ export default function JournalScreen() {
 					<Text style={styles.counter}>{encounters.length} / SAVED</Text>
 				</View>
 
-				{optimisticEncounters.map((item) => (
-					<View
-						key={item.id}
-						style={[styles.card, item.isOptimistic && { opacity: 0.6 }]}
-					>
-						<View style={styles.cardHeader}>
+				<View style={styles.composer}>
+					<Text style={styles.composerTitle}>ADD_NOTE</Text>
+					<TextInput
+						style={styles.input}
+						value={noteDraft}
+						onChangeText={setNoteDraft}
+						placeholder="Write your cat encounter..."
+						placeholderTextColor={Theme.colors.muted}
+						multiline
+						maxLength={MAX_NOTES_LENGTH}
+						textAlignVertical="top"
+					/>
+					<Text style={styles.inputCount}>
+						{noteDraft.length} / {MAX_NOTES_LENGTH}
+					</Text>
+				</View>
+
+			{optimisticEncounters.map((item) => (
+				<View
+					key={item.id}
+					style={[styles.card, item.isOptimistic && { opacity: 0.6 }]}
+				>
+					<View style={styles.cardHeader}>
+						<View style={styles.cardHeaderLeft}>
 							<Text style={styles.cardDate}>{item.date.toUpperCase()}</Text>
 							<Text style={styles.cardTag}>{item.location}</Text>
 						</View>
-						<Text style={styles.cardNotes}>{item.notes}</Text>
+						<Pressable
+							onPress={() => handleDelete(item.id)}
+							disabled={item.isOptimistic || isPending}
+							style={({ pressed }) => [
+								styles.deleteButton,
+								pressed && styles.deleteButtonPressed,
+								(item.isOptimistic || isPending) &&
+									styles.deleteButtonDisabled,
+							]}
+						>
+							<Trash2
+								color={Theme.colors.text}
+								size={18}
+								strokeWidth={2.5}
+							/>
+						</Pressable>
 					</View>
-				))}
+					<Text style={styles.cardNotes}>{item.notes}</Text>
+				</View>
+			))}
 			</ScrollView>
 
 			{/* Brutalist FAB */}
 			<Pressable
-				style={styles.fab}
+				style={[styles.fab, !canSubmit && styles.fabDisabled]}
 				onPress={handleQuickAdd}
-				disabled={isPending}
+				disabled={!canSubmit}
 			>
 				<Plus color="#FFF" size={32} strokeWidth={3} />
 			</Pressable>
@@ -93,6 +152,38 @@ const styles = StyleSheet.create({
 		letterSpacing: Theme.typography.letterSpacingWide,
 		textTransform: 'uppercase',
 	},
+	composer: {
+		backgroundColor: Theme.colors.surface,
+		borderWidth: Theme.neobrutalism.cardBorder,
+		borderColor: Theme.colors.border,
+		padding: Theme.neobrutalism.spacing,
+		marginBottom: 20,
+		borderRadius: Theme.neobrutalism.borderRadius,
+	},
+	composerTitle: {
+		fontSize: 11,
+		fontWeight: Theme.typography.fontWeightBold,
+		letterSpacing: Theme.typography.letterSpacingWide,
+		color: Theme.colors.primary,
+		marginBottom: 10,
+	},
+	input: {
+		minHeight: 96,
+		padding: 12,
+		borderWidth: Theme.neobrutalism.cardBorder,
+		borderColor: Theme.colors.border,
+		borderRadius: 6,
+		fontSize: 15,
+		color: Theme.colors.text,
+		backgroundColor: Theme.colors.background,
+	},
+	inputCount: {
+		fontSize: 11,
+		marginTop: 8,
+		textAlign: 'right',
+		color: Theme.colors.muted,
+		fontWeight: Theme.typography.fontWeightRegular,
+	},
 
 	card: {
 		backgroundColor: Theme.colors.surface,
@@ -109,8 +200,15 @@ const styles = StyleSheet.create({
 	cardHeader: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
-		alignItems: 'center',
+		alignItems: 'flex-start',
 		marginBottom: 12,
+		gap: 12,
+	},
+	cardHeaderLeft: {
+		flex: 1,
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 8,
 	},
 	cardDate: {
 		fontSize: 12,
@@ -128,6 +226,20 @@ const styles = StyleSheet.create({
 		borderRadius: 6,
 		borderWidth: Theme.neobrutalism.cardBorder,
 		borderColor: Theme.colors.border,
+	},
+	deleteButton: {
+		padding: 8,
+		borderRadius: 6,
+		borderWidth: Theme.neobrutalism.cardBorder,
+		borderColor: Theme.colors.border,
+		backgroundColor: Theme.colors.background,
+	},
+	deleteButtonPressed: {
+		backgroundColor: Theme.colors.accent,
+		opacity: 0.8,
+	},
+	deleteButtonDisabled: {
+		opacity: 0.5,
 	},
 	cardNotes: {
 		fontSize: 15,
@@ -152,5 +264,8 @@ const styles = StyleSheet.create({
 		shadowOffset: Theme.neobrutalism.shadowOffset,
 		shadowOpacity: Theme.neobrutalism.shadowOpacity,
 		shadowRadius: Theme.neobrutalism.shadowRadius,
+	},
+	fabDisabled: {
+		opacity: 0.5,
 	},
 });
