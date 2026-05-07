@@ -28,10 +28,43 @@ export const dbOperations = {
 		}
 	},
 
+	getById: (id: number): Encounter | null => {
+		try {
+			const item = db.getFirstSync<Encounter>(
+				'SELECT * FROM encounters WHERE id = ? LIMIT 1',
+				[id],
+			);
+			return item ?? null;
+		} catch (e) {
+			console.error('Failed to fetch encounter', e);
+			return null;
+		}
+	},
+
 	create: (item: NewEncounter) => {
 		return db.runSync(
 			'INSERT INTO encounters (date, location, breed_id, notes, photo_uri) VALUES (?, ?, ?, ?, ?)',
-			[item.date, item.location, item.breed_id, item.notes, item.photo_uri],
+			[
+				item.date,
+				item.location,
+				item.breed_id,
+				item.notes,
+				item.photo_uri,
+			],
+		);
+	},
+
+	update: (id: number, item: NewEncounter) => {
+		return db.runSync(
+			'UPDATE encounters SET date = ?, location = ?, breed_id = ?, notes = ?, photo_uri = ? WHERE id = ?',
+			[
+				item.date,
+				item.location,
+				item.breed_id,
+				item.notes,
+				item.photo_uri,
+				id,
+			],
 		);
 	},
 

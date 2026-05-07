@@ -53,10 +53,23 @@ function RootLayoutNav() {
 	const colorScheme = useColorScheme();
 
 	return (
-		<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+		<ThemeProvider
+			value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+		>
 			<Stack>
 				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-				<Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+				<Stack.Screen
+					name="encounters/new"
+					options={{ title: 'New encounter' }}
+				/>
+				<Stack.Screen
+					name="encounters/[id]"
+					options={{ title: 'Encounter' }}
+				/>
+				<Stack.Screen
+					name="modal"
+					options={{ presentation: 'modal' }}
+				/>
 			</Stack>
 		</ThemeProvider>
 	);

@@ -3,6 +3,11 @@ import type { Breed } from './types';
 const API_KEY = process.env.EXPO_PUBLIC_CAT_API_KEY;
 const BASE_URL = 'https://api.thecatapi.com/v1';
 
+export interface BreedOption {
+	id: string | null;
+	name: string;
+}
+
 export async function fetchBreeds(): Promise<Breed[]> {
 	// Adding a small delay to test your Suspense skeletons if needed
 	const response = await fetch(`${BASE_URL}/breeds`, {
@@ -50,4 +55,25 @@ export async function fetchBreeds(): Promise<Breed[]> {
 			return breed;
 		}),
 	);
+}
+
+export async function fetchBreedOptions(): Promise<BreedOption[]> {
+	const response = await fetch(`${BASE_URL}/breeds`, {
+		headers: {
+			'x-api-key': API_KEY || '',
+		},
+	});
+
+	if (!response.ok) {
+		throw new Error('Failed to fetch breed options');
+	}
+
+	const breeds: Array<Pick<Breed, 'id' | 'name'>> = await response.json();
+
+	return [
+		{ id: null, name: 'Chat de gouttiere' },
+		...breeds
+			.map((breed) => ({ id: breed.id, name: breed.name }))
+			.sort((a, b) => a.name.localeCompare(b.name)),
+	];
 }
